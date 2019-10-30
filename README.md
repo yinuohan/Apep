@@ -11,8 +11,9 @@ Some programs referenced in the thesis include:
 - NACO calibration: /NACO/WINDOW_CUBES.py
 
 #### Chapter 5
-- NIR aperture photometry: /photometry/NACO_photometry_2019.py
 - MIR aperture photometry: /photometry/VISIR_photometry.py
+- NIR aperture photometry: /photometry/NACO_photometry_2019.py
+- Calibration against PSF: /photometry/Flux_PSF.py
 - Interstellar dereddening: /photometry/unred.py
 
 #### Chapter 6
