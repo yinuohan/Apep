@@ -1,4 +1,4 @@
-Sample code relating to the reduction and processing of NACO data here. 
+Sample code relating to the reduction and processing of NACO data are here. 
 
 The reduction of NACO data also made use of our group's IDL pipelines https://github.com/bdawg/MaskingPipelineBN/.
 
