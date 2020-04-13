@@ -17,5 +17,5 @@ Some programs referenced in the thesis include:
 - Interstellar dereddening: /photometry/unred.py
 
 #### Chapter 6
-- Geometric model: /model/generae_spiral.m
+- Geometric model: /model/generate_spiral.m
 - MCMC: /model/MCMC.m
