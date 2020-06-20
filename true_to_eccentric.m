@@ -1,4 +1,4 @@
-% Convert true anomaly to eccentric anomaly
+% Converts true anomaly to eccentric anomaly
 
 function E = true_to_eccentric(theta, eccentricity)
 
