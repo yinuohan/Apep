@@ -1,3 +1,6 @@
+% Generates a colliding-wind binary dust spiral
+% based on the Pinwheel mechanism. 
+
 function [im, theta] = spiral(skeleton, gif, windspeed,period,inclination,big_omega,turn_off,eccentricity,omega_lock,little_omega,periastron,cone_angle,offset,n_circ,theta_lim)
 
 % Plotting parameters
