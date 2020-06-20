@@ -1,5 +1,5 @@
 % Given the observed (projected) position angle and orbital parameters, 
-% find the unprojected offset angle from periastron
+% find the unprojected offset angle from periastron. 
 
 function true_anomaly = find_offset_angle(obs_angle, big_omega, inclination, little_omega)
 
