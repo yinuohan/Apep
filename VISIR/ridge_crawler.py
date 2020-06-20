@@ -27,6 +27,10 @@ from datetime import date
 ## Settings
 compare = ['2016', '2018']
 
+use_sem = 2
+
+sem_factor = 4 # How many independent data points are there in each ridge?
+
 new_step = 5
 step_factor = new_step/3
 #step_factor = 1
@@ -47,6 +51,12 @@ distance_in_kpc = 2.4
 
 plt.rcParams.update({'font.size': 18})
 
+apply_lim = 0
+
+save_rc = 0
+
+save_diff = 0
+
 figsuffix = '_n'
 
 ## Configuration
@@ -54,7 +64,6 @@ path = 'Where is the data?'
 
 VISIR_IMAGES = {
 '2016': 'APEP_VISIR_2016_J8.9_large.fits',
-#'2017': 'second_epoch_visJ8.9.fits',
 '2017': '2nd_epoch_coord1.fits',
 '2018': 'APEP_VISIR_2018_J8.9_large.fits',
 }
@@ -65,6 +74,14 @@ dates = {
 '2018': date(2018,5,21),
 }
 
+'''
+cutoff = {
+'2016': 0.02,
+'2017': 0.02,
+'2018': 0.008,
+}
+
+'''
 # For difference image
 cutoff = {
 '2016': 0.01,
@@ -77,7 +94,7 @@ epoch2_filename = VISIR_IMAGES[compare[1]]
 
 # 'ridge name': image, startxy, starttheta, step, nstepmax, width
 ridge_params_full = {
-'a2016': [[119,145.5], 180, 3, 47, 14],
+'a2016': [[120,145.5], 180, 3, 47, 16],
 'a2017': [[115,144], 180, 3, 47, 14],
 'a2018': [[116,145.5], 180, 3, 47, 14],#max 55
 
@@ -192,7 +209,7 @@ plt.show()
 plt.figure()
 plt.imshow(epoch_2_skeleton, origin='lower')
 plt.show()
-'''
+# '''
 
 
 
@@ -213,7 +230,7 @@ def ridgecrawler(ridgename, image, startxy, starttheta, step, nstepmax, w, plot_
         
         # Plot current point
         if plot_sample_points == 1:
-            plt.scatter(point[0]*pixel-lim, point[1]*pixel-lim, marker='x', c='r', s=50)
+            plt.scatter(-(point[0]*pixel-lim), point[1]*pixel-lim, marker='x', c='r', s=50)
             
         # Draw line
         tpoint = point + step * np.array([math.cos(theta), math.sin(theta)])
@@ -226,7 +243,7 @@ def ridgecrawler(ridgename, image, startxy, starttheta, step, nstepmax, w, plot_
         slice = image[np.round(liney).astype(int), np.round(linex).astype(int)]
         
         if plot_slices == 1:
-            plt.plot(linex*pixel-lim,liney*pixel-lim,c='darkseagreen')
+            plt.plot(-(linex*pixel-lim),liney*pixel-lim,c='darkseagreen')
         #print(point)
         
         # Find max point location on line
@@ -279,7 +296,7 @@ def fit_spline(ridgename1, rl):
     
     # Plot fitted spline
     colours = ['darkseagreen', 'lightcoral']
-    plt.plot(out[0]*pixel-lim, out[1]*pixel-lim, color=colours[int(ridgename1[-1])-1])
+    plt.plot(-(out[0]*pixel-lim), out[1]*pixel-lim, color=colours[int(ridgename1[-1])-1])
     
     for i in range(0, len(out[0])):
         #plt.plot([180, out[0][i]], [180, out[1][i]])
@@ -328,11 +345,12 @@ def ridge_displacement(ridgename1, ridgename2, rl_fitted, pixel=1, centre=[c0,c1
         index_2 += [i2]
         
         # Plot distance
-        plt.plot([rf1_x[i1]*pixel-lim, rf2_x[i2]*pixel-lim], [rf1_y[i1]*pixel-lim, rf2_y[i2]*pixel-lim],color='k',alpha=0.2)
+        plt.plot([-(rf1_x[i1]*pixel-lim), -(rf2_x[i2]*pixel-lim)], [rf1_y[i1]*pixel-lim, rf2_y[i2]*pixel-lim],color='k',alpha=0.2)
         #plt.plot([180, rf2_x[i2]], [180, rf2_y[i2]])
     
     # Add text to plot
-    plt.text(np.median(rl[ridgename1], axis=1)[0]*pixel-lim-0.2,np.median(rl[ridgename1], axis=1)[1]*pixel-lim+0.7,ridgename1[0],color=textcolour)
+    if not apply_lim:
+        plt.text(-(np.median(rl[ridgename1], axis=1)[0]*pixel-lim-0.2),np.median(rl[ridgename1], axis=1)[1]*pixel-lim+0.7,ridgename1[0],color=textcolour)
         
     dist = np.array(rf2_r[index_2] - rf1_r[index_1])
     sel1 = np.array([rf1_x[index_1], rf1_y[index_1]])
@@ -391,22 +409,25 @@ axis = (axis - np.median(axis)) * pixel
 
 lim = len(epoch_1_skeleton) / 2 * pixel
 
-fig, ax = plt.subplots(figsize=(8,7))
+plt.subplots(figsize=(8,7))
 
 if background_epoch == 1:
-    plt.imshow(epoch_1_skeleton*invert, origin='lower', extent=[-lim,lim,-lim,lim],cmap=colourmap)
+    plt.imshow(epoch_1_skeleton*invert, origin='lower', extent=[lim,-lim,-lim,lim],cmap=colourmap)
 elif background_epoch == 2:
-    plt.imshow(epoch_2_skeleton*invert, origin='lower', extent=[-lim,lim,-lim,lim],cmap=colourmap)
+    plt.imshow(epoch_2_skeleton*invert, origin='lower', extent=[lim,-lim,-lim,lim],cmap=colourmap)
 
 #plt.title('Displacement from '+compare[0]+' to '+compare[1])
 plt.xlabel('Relative RA (″)',fontsize=20)
 plt.ylabel('Relative Dec (″)',fontsize=20)
 ticks = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5]
-xxticks = [-1.5, -1, -0.5, 0, 0.5]
+xxticks = [1.5, 1, 0.5, 0, -0.5]
 yyticks = [2, 2.5, 3, 3.5, 4]
-plt.xticks(ticks)
-plt.yticks(ticks)
-#ax.set_xticklabels([0])
+if apply_lim:
+    plt.xticks(xxticks)
+    plt.yticks(yyticks)
+else:
+    plt.xticks(ticks)
+    plt.yticks(ticks)
 plt.show()
 
 ## Apply ridgecrawler and fit_spline
@@ -434,7 +455,12 @@ for pair_name in all_pairs:
     
     ridge_dist[pair_name], rl_fitted_selected[epoch_1_name], rl_fitted_selected[epoch_2_name], scan_theta[pair_name]  = ridge_displacement(epoch_1_name, epoch_2_name, rl_fitted, pixel, [c0,c1])
     mean_dist[pair_name] = np.mean(ridge_dist[pair_name])
-    sem_dist[pair_name] = np.std(ridge_dist[pair_name])/np.sqrt(len(ridge_dist[pair_name]))
+    if use_sem == 1:
+        sem_dist[pair_name] = np.std(ridge_dist[pair_name])/np.sqrt(len(ridge_dist[pair_name]))
+    elif use_sem == 2:
+        sem_dist[pair_name] = np.std(ridge_dist[pair_name])/np.sqrt(sem_factor)
+    else:
+        sem_dist[pair_name] = np.std(ridge_dist[pair_name])
     arc_len.append(len(ridge_dist[pair_name]))
     
     #plot_ridges(epoch_1_name, epoch_2_name, epoch_1_skeleton, epoch_2_skeleton, rl, rl_fitted, rl_fitted_selected)
@@ -472,25 +498,30 @@ print("SEM: " + str(np.std(speed_mas)/np.sqrt(len(all_pairs))))
 
 #plt.text(np.median(rl['a1'], axis=1)[0]*pixel-lim+0.2,np.median(rl['a1'], axis=1)[1]*pixel-lim+0.2,'hey',color='w')
 
-#plt.xlim([-1.7, 0.9])
-#plt.ylim([1.8, 4.4])
+if apply_lim:
+    plt.xlim([1.7, -0.9])
+    plt.ylim([1.8, 4.4])
 
+if save_rc:
+    plt.savefig('C://users//Yinuo//Desktop//High_rc'+figsuffix+'.png', dpi = 300)
 
 ## Plot difference
 #ticks = [-8, -6, -4, -2, 0, 2, 4, 6, 8]
 ticks = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5]
 
-plt.figure(2,figsize=(8,7))
+plt.subplots(figsize=(8,7))
 diff = epoch1_sharp_chopped/np.max(epoch1_sharp_chopped) - epoch2_sharp_chopped/np.max(epoch2_sharp_chopped)
-plt.imshow(np.clip(img.gaussian_filter(diff,1),-0.15,0.15),origin='lower',extent=[-lim,lim,-lim,lim],cmap = colourmap)
+plt.imshow(np.clip(img.gaussian_filter(diff,1),-0.15,0.15),origin='lower',extent=[lim,-lim,-lim,lim],cmap = colourmap)
 #plt.title('Displacement from '+compare[0]+' to '+compare[1])
 plt.xlabel('Relative RA (″)',fontsize=20)
 plt.ylabel('Relative Dec (″)',fontsize=20)
 plt.xticks(ticks)
 plt.yticks(ticks)
+plt.plot(0,0) # Somehow makes axes look right
 plt.show()
 
-
+if save_diff:
+    plt.savefig('C://users//Yinuo//Desktop//High_diff'+figsuffix+'.png', dpi = 300)
 
 
 ## Plot angular dependance
@@ -539,7 +570,7 @@ plt.show()
 
 
 plt.figure()
-plt.imshow(-np.clip(epoch_2_skeleton,0,0.005),origin='lower', cmap='gray', extent=[-lim,lim,-lim,lim])
+plt.imshow(-np.clip(epoch_2_skeleton,0,0.005),origin='lower', cmap='gray', extent=[lim,-lim,-lim,lim])
 plt.xlabel('Relative RA (″)')
 plt.ylabel('Relative Dec (″)')
 plt.show()
