@@ -1,6 +1,9 @@
+% Run this file to generate a spiral.
+% Calls spiral.m which does the computation. 
+
 % ---------- Data image ----------
 % Read image
-path = 'C:/Yinuo/Files/My Stuff/Honours thesis/VISIR Motion/';
+path = 'Where is the data?';
 image = fitsread([path  'APEP_VISIR_2018_J8.9_large.fits']);
 
 % Centre and cut out
@@ -92,8 +95,8 @@ offset = offset - n_circ*period
 % eccentricity = 0
 
 % ---------- Model image ----------
-make_gif = 1;
-save_gif = 1;
+make_gif = 0;
+save_gif = 0;
 
 % Plot model image
 if ~make_gif
@@ -111,7 +114,7 @@ end
 if make_gif
     h = figure;
     axis tight manual % this ensures that getframe() returns a consistent size
-    filename = 'C:/users/Yinuo/Desktop/Apep.gif';
+    filename = 'Where do you want to save this?';
     
     scale = 45/1e3;
     dim = 360/2;
