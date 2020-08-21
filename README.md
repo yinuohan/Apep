@@ -1,4 +1,7 @@
 # Apep
+
+## Update: new science results in paper here [arxiv.org/abs/2008.05834](https://arxiv.org/abs/2008.05834)
+
 Welcome! Here are a few pieces of sample code I used to look at Apep the spiral as part of my honours project. 
 
 Some programs referenced in the thesis include:
